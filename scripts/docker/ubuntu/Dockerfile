@@ -8,6 +8,7 @@ RUN echo $PACKAGES_REPO
 WORKDIR /agent
 COPY ./scripts/docker/entrypoint.sh /agent/entrypoint.sh
 COPY ./nginx-agent.conf /agent/nginx-agent.conf
+COPY ./test.conf /agent/test.conf
 
 RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     --mount=type=secret,id=nginx-key,dst=nginx-repo.key \
@@ -59,6 +60,7 @@ FROM install as runtime
 
 COPY --from=install /agent/entrypoint.sh /agent/entrypoint.sh
 COPY --from=install /agent/nginx-agent.conf /etc/nginx-agent/nginx-agent.conf
+COPY --from=install /agent/test.conf /etc/nginx/nginx.conf
 
 RUN chmod +x /agent/entrypoint.sh
 STOPSIGNAL SIGTERM
