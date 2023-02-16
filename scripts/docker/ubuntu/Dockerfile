@@ -9,6 +9,8 @@ WORKDIR /agent
 COPY ./scripts/docker/entrypoint.sh /agent/entrypoint.sh
 COPY ./nginx-agent.conf /agent/nginx-agent.conf
 COPY ./test.conf /agent/test.conf
+COPY ./example.com.crt /agent/example.com.crt
+COPY ./example.com.key /agent/example.com.key
 
 RUN --mount=type=secret,id=nginx-crt,dst=nginx-repo.crt \
     --mount=type=secret,id=nginx-key,dst=nginx-repo.key \
@@ -61,6 +63,10 @@ FROM install as runtime
 COPY --from=install /agent/entrypoint.sh /agent/entrypoint.sh
 COPY --from=install /agent/nginx-agent.conf /etc/nginx-agent/nginx-agent.conf
 COPY --from=install /agent/test.conf /etc/nginx/nginx.conf
+
+RUN mkdir -p /etc/ssl/amplify/test
+COPY --from=install /agent/example.com.crt /etc/ssl/amplify/test/example.com.crt
+COPY --from=install /agent/example.com.key /etc/ssl/amplify/test/example.com.key
 
 RUN chmod +x /agent/entrypoint.sh
 STOPSIGNAL SIGTERM
